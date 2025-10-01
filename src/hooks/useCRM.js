@@ -1,14 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, query, orderBy, onSnapshot, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+} from 'firebase/firestore';
 
 const useCRM = (db, userId, isAuthReady) => {
   const [contatos, setContatos] = useState([]);
   const [isLoadingCRM, setIsLoadingCRM] = useState(true);
-  const appId = process.env.REACT_APP_FIREBASE_APP_ID || "default-agro-gestor-app";
+  const appId =
+    process.env.REACT_APP_FIREBASE_APP_ID || 'default-agro-gestor-app';
 
   const getCollectionRef = useCallback(() => {
     if (db) {
-      return collection(db, "artifacts", appId, "public", "data", "crm");
+      return collection(db, 'artifacts', appId, 'public', 'data', 'crm');
     }
     return null;
   }, [db, appId]);
@@ -18,7 +28,7 @@ const useCRM = (db, userId, isAuthReady) => {
       setIsLoadingCRM(false);
       return;
     }
-    const q = query(getCollectionRef(), orderBy("nome"));
+    const q = query(getCollectionRef(), orderBy('nome'));
 
     const unsubscribe = onSnapshot(
       q,
@@ -31,7 +41,7 @@ const useCRM = (db, userId, isAuthReady) => {
         setIsLoadingCRM(false);
       },
       (err) => {
-        console.error("Erro ao carregar contatos:", err);
+        console.error('Erro ao carregar contatos:', err);
         setIsLoadingCRM(false);
       }
     );
@@ -48,21 +58,37 @@ const useCRM = (db, userId, isAuthReady) => {
         createdAt: serverTimestamp(),
       });
     } catch (err) {
-      console.error("Erro ao adicionar contato:", err);
+      console.error('Erro ao adicionar contato:', err);
     }
   };
 
   const updateContato = async (id, dados) => {
     if (!db) return;
     try {
-      const docRef = doc(db, "artifacts", appId, "public", "data", "crm", id);
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm', id);
       await updateDoc(docRef, dados);
     } catch (err) {
-      console.error("Erro ao atualizar contato:", err);
+      console.error('Erro ao atualizar contato:', err);
     }
   };
 
-  return { contatos, isLoadingCRM, addContato, updateContato };
+  const updateContatoStatus = async (id, newStatus) => {
+    if (!db) return;
+    try {
+      const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'crm', id);
+      await updateDoc(docRef, { status: newStatus });
+    } catch (err) {
+      console.error('Erro ao atualizar status do contato:', err);
+    }
+  };
+
+  return {
+    contatos,
+    isLoadingCRM,
+    addContato,
+    updateContato,
+    updateContatoStatus,
+  };
 };
 
 export default useCRM;

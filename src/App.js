@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 
 // Firebase and Hooks
 import { useFirebase, setupInitialData } from "./firebase/config";
@@ -7,6 +8,8 @@ import useRecursos from "./hooks/useRecursos";
 import useVendas from "./hooks/useVendas";
 import useRH from "./hooks/useRH";
 import useCRM from "./hooks/useCRM";
+import useMaquinario from "./hooks/useMaquinario";
+import useReceituarios from "./hooks/useReceituarios";
 
 // UI Components
 import SplashScreen from "./components/ui/SplashScreen";
@@ -20,6 +23,11 @@ import RecursosView from "./components/recursos/RecursosView";
 import VendasView from "./components/financeiro/VendasView";
 import RHView from "./components/rh/RHView";
 import CRMView from "./components/crm/CRMView";
+import ProdutorRuralView from "./components/marketing/ProdutorRuralView";
+import MaquinarioView from "./components/maquinario/MaquinarioView";
+import ReceituarioView from "./components/receituario/ReceituarioView";
+import MapaView from "./components/mapa/MapaView";
+import AnaliseCustosView from "./components/analise/AnaliseCustosView";
 
 // Forms and Modals
 import CadastroPlantacaoForm from "./components/plantacoes/CadastroPlantacaoForm";
@@ -32,17 +40,11 @@ import AplicacaoInsumoForm from "./components/recursos/AplicacaoInsumoForm";
 import CadastroVendaForm from "./components/financeiro/CadastroVendaForm";
 import CadastroRHForm from "./components/rh/CadastroRHForm";
 import CadastroCRMForm from "./components/crm/CadastroCRMForm";
-
-// Constants
-const VIEW_PLANTACOES = "plantacoes";
-const VIEW_RECURSOS = "recursos";
-const VIEW_FINANCEIRO = "financeiro";
-const VIEW_RH = "rh";
-const VIEW_CRM = "crm";
-const VIEW_DASHBOARD = "dashboard";
+import CadastroMaquinarioForm from "./components/maquinario/CadastroMaquinarioForm";
+import ReceituarioAgronomicoForm from "./components/receituario/ReceituarioAgronomicoForm";
 
 const App = () => {
-  const { db, auth, userId, isAuthReady } = useFirebase();
+  const { db, auth, userId, isAuthReady, user } = useFirebase();
   const {
     plantacoes,
     isLoading,
@@ -68,13 +70,21 @@ const App = () => {
     userId,
     isAuthReady
   );
-  const { contatos, isLoadingCRM, addContato, updateContato } = useCRM(
-    db,
-    userId,
-    isAuthReady
-  );
+  const {
+    contatos,
+    isLoadingCRM,
+    addContato,
+    updateContato,
+    updateContatoStatus,
+  } = useCRM(db, userId, isAuthReady);
+  const { maquinario, isLoadingMaquinario, addMaquina, updateMaquina } =
+    useMaquinario(db, userId, isAuthReady);
+  const {
+    receituarios,
+    isLoading: isLoadingReceituarios,
+    addReceituario,
+  } = useReceituarios(db, userId, isAuthReady);
 
-  const [currentView, setCurrentView] = useState(VIEW_DASHBOARD);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -95,6 +105,10 @@ const App = () => {
     setIsModalOpen(false);
     setModalType(null);
     setSelectedItem(null);
+  };
+
+  const handleLogout = () => {
+    auth.signOut();
   };
 
   const renderModalContent = () => {
@@ -185,67 +199,27 @@ const App = () => {
             contatoEdit={selectedItem}
           />
         );
+      case "cadastro_maquinario":
+        return (
+          <CadastroMaquinarioForm
+            onClose={closeModal}
+            onSave={addMaquina}
+            updateMaquina={updateMaquina}
+            maquinaEdit={selectedItem}
+          />
+        );
+      case "cadastro_receituario":
+        return (
+          <ReceituarioAgronomicoForm
+            onClose={closeModal}
+            onSave={addReceituario}
+            contatos={contatos}
+            plantacoes={plantacoes}
+            recursos={recursos}
+          />
+        );
       default:
         return null;
-    }
-  };
-
-  const renderView = () => {
-    switch (currentView) {
-      case VIEW_RECURSOS:
-        return (
-          <RecursosView
-            recursos={recursos}
-            isLoading={isLoadingRecursos}
-            error={errorRecursos}
-            openRecursoModal={(r) => openModal("cadastro_recurso", r)}
-          />
-        );
-      case VIEW_FINANCEIRO:
-        return (
-          <VendasView
-            vendas={vendas}
-            isLoading={isLoadingVendas}
-            error={errorVendas}
-            contatos={contatos}
-            openVendaModal={() => openModal("cadastro_venda")}
-          />
-        );
-      case VIEW_RH:
-        return (
-          <RHView
-            equipe={equipe}
-            isLoadingRH={isLoadingRH}
-            openMembroModal={(m) => openModal("cadastro_rh", m)}
-          />
-        );
-      case VIEW_CRM:
-        return (
-          <CRMView
-            contatos={contatos}
-            isLoadingCRM={isLoadingCRM}
-            openContatoModal={(c) => openModal("cadastro_crm", c)}
-          />
-        );
-      case VIEW_PLANTACOES:
-        return (
-          <PlantacoesView
-            plantacoes={plantacoes}
-            isLoading={isLoading}
-            error={error}
-            openModal={openModal}
-          />
-        );
-      case VIEW_DASHBOARD:
-      default:
-        return (
-          <DashboardView
-            plantacoes={plantacoes}
-            recursos={recursos}
-            vendas={vendas}
-            equipe={equipe}
-          />
-        );
     }
   };
 
@@ -255,22 +229,108 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      <header className="bg-gray-800 shadow-md p-3 sticky top-0 z-20">
-        <div className="container mx-auto flex justify-between items-center">
-          <img
-            src="https://i.imgur.com/4a8RBx6.png"
-            alt="GG AGRO Logo"
-            className="h-10"
+      <MainNavigation user={user} onLogout={handleLogout} />
+
+      <main className="container mx-auto p-4">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <DashboardView
+                plantacoes={plantacoes}
+                recursos={recursos}
+                vendas={vendas}
+                equipe={equipe}
+              />
+            }
           />
-          <div className="text-sm text-gray-400">
-            ID do Usuário: <span className="font-mono text-xs">{userId}</span>
-          </div>
-        </div>
-      </header>
-
-      <MainNavigation currentView={currentView} setView={setCurrentView} />
-
-      <main className="container mx-auto">{renderView()}</main>
+          <Route
+            path="/plantacoes"
+            element={
+              <PlantacoesView
+                plantacoes={plantacoes}
+                isLoading={isLoading}
+                error={error}
+                openModal={openModal}
+              />
+            }
+          />
+          <Route
+            path="/recursos"
+            element={
+              <RecursosView
+                recursos={recursos}
+                isLoading={isLoadingRecursos}
+                error={errorRecursos}
+                openRecursoModal={(r) => openModal("cadastro_recurso", r)}
+              />
+            }
+          />
+          <Route
+            path="/vendas"
+            element={
+              <VendasView
+                vendas={vendas}
+                isLoading={isLoadingVendas}
+                error={errorVendas}
+                contatos={contatos}
+                openVendaModal={() => openModal("cadastro_venda")}
+              />
+            }
+          />
+          <Route
+            path="/rh"
+            element={
+              <RHView
+                equipe={equipe}
+                isLoadingRH={isLoadingRH}
+                openMembroModal={(m) => openModal("cadastro_rh", m)}
+              />
+            }
+          />
+          <Route
+            path="/crm"
+            element={
+              <CRMView
+                contatos={contatos}
+                isLoadingCRM={isLoadingCRM}
+                openContatoModal={(c) => openModal("cadastro_crm", c)}
+                updateContatoStatus={updateContatoStatus}
+              />
+            }
+          />
+          <Route path="/produtor-rural" element={<ProdutorRuralView />} />
+          <Route
+            path="/maquinario"
+            element={
+              <MaquinarioView
+                maquinario={maquinario}
+                isLoadingMaquinario={isLoadingMaquinario}
+                openMaquinarioModal={(m) => openModal("cadastro_maquinario", m)}
+              />
+            }
+          />
+          <Route
+            path="/receituarios"
+            element={
+              <ReceituarioView
+                receituarios={receituarios}
+                isLoading={isLoadingReceituarios}
+                openReceituarioModal={() => openModal("cadastro_receituario")}
+                contatos={contatos}
+                recursos={recursos}
+              />
+            }
+          />
+          <Route path="/mapa" element={<MapaView plantacoes={plantacoes} />} />
+          <Route
+            path="/analise-custos"
+            element={
+              <AnaliseCustosView plantacoes={plantacoes} recursos={recursos} />
+            }
+          />
+        </Routes>
+      </main>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         {renderModalContent()}

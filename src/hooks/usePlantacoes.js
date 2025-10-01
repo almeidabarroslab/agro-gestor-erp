@@ -1,15 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, query, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  doc,
+  GeoPoint,
+} from 'firebase/firestore';
 
 const usePlantacoes = (db, userId, isAuthReady) => {
   const [plantacoes, setPlantacoes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const appId = process.env.REACT_APP_FIREBASE_APP_ID || "default-agro-gestor-app";
+  const appId =
+    process.env.REACT_APP_FIREBASE_APP_ID || 'default-agro-gestor-app';
 
   const getCollectionRef = useCallback(() => {
     if (db) {
-      return collection(db, "artifacts", appId, "public", "data", "plantacoes");
+      return collection(db, 'artifacts', appId, 'public', 'data', 'plantacoes');
     }
     return null;
   }, [db, appId]);
@@ -36,9 +45,9 @@ const usePlantacoes = (db, userId, isAuthReady) => {
         setIsLoading(false);
       },
       (err) => {
-        console.error("Erro ao carregar plantações:", err);
+        console.error('Erro ao carregar plantações:', err);
         setError(
-          "Falha ao carregar dados. Verifique sua conexão ou permissões."
+          'Falha ao carregar dados. Verifique sua conexão ou permissões.'
         );
         setIsLoading(false);
       }
@@ -47,14 +56,25 @@ const usePlantacoes = (db, userId, isAuthReady) => {
     return () => unsubscribe();
   }, [db, isAuthReady, getCollectionRef]);
 
+  const processarDadosGeo = (dados) => {
+    if (dados.areaGeo && dados.areaGeo.geometry) {
+      const coordinates = dados.areaGeo.geometry.coordinates[0];
+      dados.areaGeo = coordinates.map(
+        (coord) => new GeoPoint(coord[1], coord[0])
+      );
+    }
+    return dados;
+  };
+
   const addPlantacao = async (novaPlantacao) => {
     if (!db) {
-      setError("Banco de dados não está pronto.");
+      setError('Banco de dados não está pronto.');
       return;
     }
     try {
+      const dadosProcessados = processarDadosGeo(novaPlantacao);
       await addDoc(getCollectionRef(), {
-        ...novaPlantacao,
+        ...dadosProcessados,
         userId: userId,
         createdAt: new Date().toISOString(),
         dadosCrescimento: [],
@@ -62,27 +82,28 @@ const usePlantacoes = (db, userId, isAuthReady) => {
         rendimentoFinal: null,
       });
     } catch (err) {
-      console.error("Erro ao adicionar plantação:", err);
-      setError("Não foi possível salvar a nova plantação.");
+      console.error('Erro ao adicionar plantação:', err);
+      setError('Não foi possível salvar a nova plantação.');
     }
   };
 
   const updatePlantacao = async (id, dados) => {
     if (!db) return;
     try {
+      const dadosProcessados = processarDadosGeo(dados);
       const docRef = doc(
         db,
-        "artifacts",
+        'artifacts',
         appId,
-        "public",
-        "data",
-        "plantacoes",
+        'public',
+        'data',
+        'plantacoes',
         id
       );
-      await updateDoc(docRef, dados);
+      await updateDoc(docRef, dadosProcessados);
     } catch (err) {
-      console.error("Erro ao atualizar plantação:", err);
-      setError("Não foi possível atualizar a plantação.");
+      console.error('Erro ao atualizar plantação:', err);
+      setError('Não foi possível atualizar a plantação.');
     }
   };
 

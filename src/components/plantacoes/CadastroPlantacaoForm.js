@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { CULTURES } from '../../utils/constants';
+import DefinirAreaMapa from './DefinirAreaMapa';
 
 const CadastroPlantacaoForm = ({
   onSave,
@@ -7,15 +8,18 @@ const CadastroPlantacaoForm = ({
   plantacaoEdit,
   updatePlantacao,
 }) => {
-  const [nome, setNome] = useState(plantacaoEdit ? plantacaoEdit.nome : "");
+  const [nome, setNome] = useState(plantacaoEdit ? plantacaoEdit.nome : '');
   const [areaHa, setAreaHa] = useState(
-    plantacaoEdit ? plantacaoEdit.areaHa : ""
+    plantacaoEdit ? plantacaoEdit.areaHa : ''
   );
   const [dataPlantio, setDataPlantio] = useState(
-    plantacaoEdit ? plantacaoEdit.dataPlantio.split("T")[0] : ""
+    plantacaoEdit ? plantacaoEdit.dataPlantio.split('T')[0] : ''
   );
   const [cultura, setCultura] = useState(
     plantacaoEdit ? plantacaoEdit.cultura : CULTURES[0]
+  );
+  const [areaGeo, setAreaGeo] = useState(
+    plantacaoEdit ? plantacaoEdit.areaGeo : null
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +31,8 @@ const CadastroPlantacaoForm = ({
       areaHa: parseFloat(areaHa),
       dataPlantio,
       cultura,
-      status: plantacaoEdit ? plantacaoEdit.status : "Plantada",
+      status: plantacaoEdit ? plantacaoEdit.status : 'Plantada',
+      areaGeo,
     };
     try {
       if (plantacaoEdit) {
@@ -37,14 +42,27 @@ const CadastroPlantacaoForm = ({
       }
       onClose();
     } catch (error) {
-      console.error("Erro ao salvar:", error);
+      console.error('Erro ao salvar:', error);
       setIsLoading(false);
     }
   };
+
+  const areaInicialGeoJSON = useMemo(() => {
+    if (!plantacaoEdit || !plantacaoEdit.areaGeo) return null;
+    const coordinates = plantacaoEdit.areaGeo.map((p) => [
+      p.longitude,
+      p.latitude,
+    ]);
+    return {
+      type: 'Polygon',
+      coordinates: [coordinates],
+    };
+  }, [plantacaoEdit]);
+
   return (
-    <div className="p-6 bg-white rounded-xl shadow-2xl max-h-[95vh] space-y-4 max-w-lg w-full">
+    <div className="p-6 bg-white rounded-xl shadow-2xl max-h-[95vh] space-y-4 max-w-2xl w-full overflow-y-auto">
       <h2 className="text-2xl font-bold text-teal-700">
-        {plantacaoEdit ? "Editar Plantação" : "Nova Plantação"}
+        {plantacaoEdit ? 'Editar Plantação' : 'Nova Plantação'}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -123,6 +141,13 @@ const CadastroPlantacaoForm = ({
             />
           </div>
         </div>
+
+        <DefinirAreaMapa
+          onAreaDefined={setAreaGeo}
+          onAreaCalculated={setAreaHa}
+          areaInicial={areaInicialGeoJSON}
+        />
+
         <div className="flex justify-end space-x-3 pt-4">
           <button
             type="button"
@@ -138,10 +163,10 @@ const CadastroPlantacaoForm = ({
             disabled={isLoading}
           >
             {isLoading
-              ? "Salvando..."
+              ? 'Salvando...'
               : plantacaoEdit
-              ? "Atualizar Plantação"
-              : "Criar Plantação"}
+              ? 'Atualizar Plantação'
+              : 'Criar Plantação'}
           </button>
         </div>
       </form>
