@@ -13,16 +13,15 @@ const navLinks = [
   { to: "/receituarios", text: "Receituários", icon: "FileText" },
   { to: "/mapa", text: "Mapa", icon: "Map" },
   { to: "/analise-custos", text: "Análise de Custos", icon: "BarChart3" },
-  { to: "/produtor-rural", text: "Produtor Rural", icon: "Info" },
-  { to: "/tasks", text: "Tarefas", icon: "CheckSquare" }, // Added TaskView link
+  { to: "/tasks", text: "Tarefas", icon: "CheckSquare" },
 ];
 
 const MainNavigation = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  const activeLinkClass = "bg-gray-900 text-white";
-  const inactiveLinkClass = "text-gray-300 hover:bg-gray-700 hover:text-white";
+  const activeLinkClass = "bg-green-700 text-white";
+  const inactiveLinkClass = "text-gray-300 hover:bg-green-600 hover:text-white";
 
   return (
     <nav className="bg-gray-800 shadow-lg">
@@ -49,13 +48,13 @@ const MainNavigation = ({ user, onLogout }) => {
               <NavLink to="/">
                 <img
                   src="https://i.imgur.com/4a8RBx6.png"
-                  alt="GG AGRO Logo"
+                  alt="Agro Gestor Logo"
                   className="h-10"
                 />
               </NavLink>
             </div>
             <div className="hidden sm:ml-6 sm:block">
-              <div className="flex space-x-4">
+              <div className="flex space-x-1">
                 {navLinks.map((link) => (
                   <NavLink
                     key={link.to}
@@ -63,10 +62,10 @@ const MainNavigation = ({ user, onLogout }) => {
                     className={({ isActive }) =>
                       `${
                         isActive ? activeLinkClass : inactiveLinkClass
-                      } rounded-md px-3 py-2 text-sm font-medium flex items-center`
+                      } rounded-md px-3 py-2 text-sm font-medium flex items-center transition-colors duration-200`
                     }
                   >
-                    <LucideIcon name={link.icon} className="mr-2 h-5 w-5" />
+                    <LucideIcon name={link.icon} className="mr-2 h-4 w-4" />
                     {link.text}
                   </NavLink>
                 ))}
@@ -74,14 +73,6 @@ const MainNavigation = ({ user, onLogout }) => {
             </div>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <button
-              type="button"
-              className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-            >
-              <span className="sr-only">View notifications</span>
-              <LucideIcon name="Bell" className="h-6 w-6" />
-            </button>
-
             {/* Profile dropdown */}
             <div className="relative ml-3">
               <div>
@@ -94,8 +85,8 @@ const MainNavigation = ({ user, onLogout }) => {
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                 >
                   <span className="sr-only">Open user menu</span>
-                  <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold">
-                    {user?.email ? user.email.charAt(0).toUpperCase() : "?"}
+                  <div className="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center text-white font-bold">
+                    {user?.email ? user.email.charAt(0).toUpperCase() : "A"}
                   </div>
                 </button>
               </div>
@@ -107,26 +98,6 @@ const MainNavigation = ({ user, onLogout }) => {
                   aria-labelledby="user-menu-button"
                   tabIndex="-1"
                 >
-                  <NavLink
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700"
-                    role="menuitem"
-                    tabIndex="-1"
-                    id="user-menu-item-0"
-                    onClick={() => setIsProfileMenuOpen(false)}
-                  >
-                    Seu Perfil
-                  </NavLink>
-                  <NavLink
-                    to="/settings"
-                    className="block px-4 py-2 text-sm text-gray-700"
-                    role="menuitem"
-                    tabIndex="-1"
-                    id="user-menu-item-1"
-                    onClick={() => setIsProfileMenuOpen(false)}
-                  >
-                    Configurações
-                  </NavLink>
                   <button
                     onClick={() => {
                       onLogout();

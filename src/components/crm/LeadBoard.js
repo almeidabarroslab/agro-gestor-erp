@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import LucideIcon from '../ui/LucideIcon';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import React, { useState, useEffect } from "react";
+import LucideIcon from "../../components/ui/LucideIcon";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 const columns = {
-  Lead: { title: 'Lead', color: 'yellow' },
-  'Em Negociação': { title: 'Em Negociação', color: 'blue' },
-  Ativo: { title: 'Ganho (Ativo)', color: 'green' },
-  Inativo: { title: 'Perdido (Inativo)', color: 'red' },
+  Lead: { title: "Lead", color: "yellow" },
+  "Em Negociação": { title: "Em Negociação", color: "blue" },
+  Ativo: { title: "Cliente Ativo", color: "green" },
+  Inativo: { title: "Perdido", color: "red" },
 };
 
 const LeadCard = ({ lead, index }) => (
@@ -16,13 +16,15 @@ const LeadCard = ({ lead, index }) => (
         ref={provided.innerRef}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
-        className={`bg-white p-3 rounded-lg shadow-sm border border-gray-200 mb-3 ${
-          snapshot.isDragging ? 'shadow-lg border-sky-500' : ''
+        className={`bg-white p-3 rounded-lg shadow-sm border border-gray-200 mb-3 transition-shadow duration-200 ${
+          snapshot.isDragging
+            ? "shadow-lg border-sky-500 ring-2 ring-sky-300"
+            : ""
         }`}
       >
         <h4 className="font-bold text-gray-800">{lead.nome}</h4>
         <p className="text-sm text-gray-600">
-          {lead.nomePropriedade || 'Sem propriedade'}
+          {lead.nomePropriedade || "Sem propriedade"}
         </p>
         <div className="flex items-center mt-2">
           <LucideIcon name="User" className="w-4 h-4 mr-1 text-gray-400" />
@@ -34,8 +36,10 @@ const LeadCard = ({ lead, index }) => (
 );
 
 const LeadColumn = ({ columnId, column, leads }) => (
-  <div className="bg-gray-100 rounded-lg p-3 flex-1 min-w-[250px]">
-    <h3 className={`font-semibold mb-4 text-lg text-${column.color}-600`}>
+  <div className="bg-gray-100 rounded-lg p-3 flex-1 min-w-[280px]">
+    <h3
+      className={`font-semibold mb-4 text-lg text-${column.color}-600 border-b-2 border-${column.color}-200 pb-2`}
+    >
       {column.title}
     </h3>
     <Droppable droppableId={columnId}>
@@ -43,8 +47,8 @@ const LeadColumn = ({ columnId, column, leads }) => (
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className={`min-h-[200px] ${
-            snapshot.isDraggingOver ? 'bg-sky-100' : ''
+          className={`min-h-[200px] rounded-md transition-colors duration-200 ${
+            snapshot.isDraggingOver ? `bg-${column.color}-100` : "bg-gray-50"
           }`}
         >
           {leads.map((lead, index) => (
@@ -57,10 +61,10 @@ const LeadColumn = ({ columnId, column, leads }) => (
   </div>
 );
 
-const LeadBoard = ({ contatos, updateContatoStatus }) => {
+const LeadBoard = ({ contatos, updateContatoStatus, title }) => {
   const [boardData, setBoardData] = useState({
     Lead: [],
-    'Em Negociação': [],
+    "Em Negociação": [],
     Ativo: [],
     Inativo: [],
   });
@@ -68,7 +72,7 @@ const LeadBoard = ({ contatos, updateContatoStatus }) => {
   useEffect(() => {
     const newBoardData = {
       Lead: [],
-      'Em Negociação': [],
+      "Em Negociação": [],
       Ativo: [],
       Inativo: [],
     };
@@ -91,20 +95,9 @@ const LeadBoard = ({ contatos, updateContatoStatus }) => {
     const finishColumnId = destination.droppableId;
 
     if (startColumnId === finishColumnId) {
-      // Reordering within the same column
-      const column = boardData[startColumnId];
-      const newItems = Array.from(column);
-      const [reorderedItem] = newItems.splice(source.index, 1);
-      newItems.splice(destination.index, 0, reorderedItem);
-
-      setBoardData({
-        ...boardData,
-        [startColumnId]: newItems,
-      });
       return;
     }
 
-    // Moving from one column to another
     const startColumn = boardData[startColumnId];
     const finishColumn = boardData[finishColumnId];
 
@@ -119,15 +112,14 @@ const LeadBoard = ({ contatos, updateContatoStatus }) => {
       [finishColumnId]: finishItems,
     });
 
-    // Update status in Firestore
     updateContatoStatus(draggableId, finishColumnId);
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6 flex items-center">
+    <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
         <LucideIcon name="KanbanSquare" className="w-6 h-6 mr-2 text-sky-600" />
-        Quadro de Leads
+        {title || "Quadro de Leads (Funil de Vendas)"}
       </h2>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex space-x-4 overflow-x-auto pb-4">
@@ -136,7 +128,7 @@ const LeadBoard = ({ contatos, updateContatoStatus }) => {
               key={columnId}
               columnId={columnId}
               column={column}
-              leads={boardData[columnId]}
+              leads={boardData[columnId] || []}
             />
           ))}
         </div>

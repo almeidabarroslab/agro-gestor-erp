@@ -1,6 +1,6 @@
-import React from 'react';
-import LucideIcon from '../ui/LucideIcon';
-import LeadBoard from './LeadBoard'; // Import the new component
+import React, { useState } from "react";
+import LucideIcon from "../ui/LucideIcon";
+import LeadBoard from "./LeadBoard"; // Import the new component
 
 const CRMView = ({
   contatos,
@@ -8,18 +8,33 @@ const CRMView = ({
   openContatoModal,
   updateContatoStatus,
 }) => {
-  const clientes = contatos.filter((c) => c.tipo === 'Cliente');
-  const fornecedores = contatos.filter((c) => c.tipo === 'Fornecedor');
+  const [currentView, setCurrentView] = useState("todos");
+  const clientes = contatos.filter((c) => c.tipo === "Cliente");
+  const fornecedores = contatos.filter((c) => c.tipo === "Fornecedor");
+
+  const displayedContatos =
+    currentView === "clientes"
+      ? clientes
+      : currentView === "fornecedores"
+      ? fornecedores
+      : contatos;
+
+  const boardTitle =
+    currentView === "clientes"
+      ? "Funil de Clientes"
+      : currentView === "fornecedores"
+      ? "Funil de Fornecedores"
+      : "Quadro de Leads (Funil de Vendas)";
 
   const totalClientes = clientes.length;
   const totalFornecedores = fornecedores.length;
-  const totalLeads = contatos.filter((c) => c.status === 'Lead').length;
+  const totalLeads = contatos.filter((c) => c.status === "Lead").length;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-semibold text-gray-800 flex items-center">
-          <LucideIcon name="Briefcase" className="w-6 h-6 mr-2 text-sky-600" />{' '}
+          <LucideIcon name="Briefcase" className="w-6 h-6 mr-2 text-sky-600" />{" "}
           Gestão de Clientes / Fornecedores (CRM)
         </h2>
         <button
@@ -75,9 +90,45 @@ const CRMView = ({
         </div>
       </div>
 
+      <div className="mb-4 mt-8">
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl max-w-sm mx-auto">
+          <button
+            onClick={() => setCurrentView("todos")}
+            className={`w-full px-4 py-2 text-sm font-bold rounded-lg transition-all ${
+              currentView === "todos"
+                ? "bg-white text-sky-600 shadow"
+                : "text-gray-500 hover:bg-gray-200"
+            }`}
+          >
+            Todos
+          </button>
+          <button
+            onClick={() => setCurrentView("clientes")}
+            className={`w-full px-4 py-2 text-sm font-bold rounded-lg transition-all ${
+              currentView === "clientes"
+                ? "bg-white text-sky-600 shadow"
+                : "text-gray-500 hover:bg-gray-200"
+            }`}
+          >
+            Clientes
+          </button>
+          <button
+            onClick={() => setCurrentView("fornecedores")}
+            className={`w-full px-4 py-2 text-sm font-bold rounded-lg transition-all ${
+              currentView === "fornecedores"
+                ? "bg-white text-sky-600 shadow"
+                : "text-gray-500 hover:bg-gray-200"
+            }`}
+          >
+            Fornecedores
+          </button>
+        </div>
+      </div>
+
       <LeadBoard
-        contatos={contatos}
+        contatos={displayedContatos}
         updateContatoStatus={updateContatoStatus}
+        title={boardTitle}
       />
 
       <h3 className="text-2xl font-semibold text-gray-700 mb-4 mt-8">
@@ -85,12 +136,12 @@ const CRMView = ({
       </h3>
       {isLoadingCRM ? (
         <div className="text-center p-12">
-          {' '}
+          {" "}
           <LucideIcon
             name="Tractor"
             className="w-12 h-12 animate-spin text-sky-500 mx-auto"
-          />{' '}
-          <p className="text-gray-500 mt-2">Carregando contatos...</p>{' '}
+          />{" "}
+          <p className="text-gray-500 mt-2">Carregando contatos...</p>{" "}
         </div>
       ) : contatos.length === 0 ? (
         <div className="text-center p-16 bg-white rounded-xl shadow-lg border-dashed border-2 border-gray-300">
@@ -104,16 +155,16 @@ const CRMView = ({
             <div
               key={c.id}
               className={`bg-white rounded-xl shadow-lg p-5 border-t-4 ${
-                c.tipo === 'Cliente' ? 'border-sky-500' : 'border-blue-500'
+                c.tipo === "Cliente" ? "border-sky-500" : "border-blue-500"
               } hover:shadow-xl transition duration-300`}
             >
               <div className="flex justify-between items-start">
                 <h3 className="text-xl font-bold text-gray-800">{c.nome}</h3>
                 <div
                   className={`px-3 py-1 text-xs font-semibold rounded-full shadow-inner ${
-                    c.tipo === 'Cliente'
-                      ? 'bg-sky-100 text-sky-800'
-                      : 'bg-blue-100 text-blue-800'
+                    c.tipo === "Cliente"
+                      ? "bg-sky-100 text-sky-800"
+                      : "bg-blue-100 text-blue-800"
                   }`}
                 >
                   {c.tipo}
@@ -124,50 +175,50 @@ const CRMView = ({
                   <LucideIcon
                     name="FileText"
                     className="w-4 h-4 mr-2 opacity-60"
-                  />{' '}
-                  Documento: {c.documento || 'N/A'}
+                  />{" "}
+                  Documento: {c.documento || "N/A"}
                 </p>
                 <p className="flex items-center">
                   <LucideIcon
                     name="Phone"
                     className="w-4 h-4 mr-2 opacity-60"
-                  />{' '}
-                  Telefone: {c.telefone || 'N/A'}
+                  />{" "}
+                  Telefone: {c.telefone || "N/A"}
                 </p>
                 <p className="flex items-center">
-                  <LucideIcon name="Mail" className="w-4 h-4 mr-2 opacity-60" />{' '}
-                  Email: {c.email || 'N/A'}
+                  <LucideIcon name="Mail" className="w-4 h-4 mr-2 opacity-60" />{" "}
+                  Email: {c.email || "N/A"}
                 </p>
                 <p className="flex items-center">
                   <LucideIcon
                     name="MapPin"
                     className="w-4 h-4 mr-2 opacity-60"
-                  />{' '}
-                  Endereço: {c.endereco || 'N/A'}
+                  />{" "}
+                  Endereço: {c.endereco || "N/A"}
                 </p>
                 <p className="flex items-center">
                   <LucideIcon
                     name="Tractor"
                     className="w-4 h-4 mr-2 opacity-60"
-                  />{' '}
-                  Propriedade: {c.nomePropriedade || 'N/A'} (
-                  {c.tamanhoPropriedade || 'N/A'} ha)
+                  />{" "}
+                  Propriedade: {c.nomePropriedade || "N/A"} (
+                  {c.tamanhoPropriedade || "N/A"} ha)
                 </p>
                 <p className="flex items-center">
-                  <LucideIcon name="Leaf" className="w-4 h-4 mr-2 opacity-60" />{' '}
-                  Cultura: {c.cultura || 'N/A'}
+                  <LucideIcon name="Leaf" className="w-4 h-4 mr-2 opacity-60" />{" "}
+                  Cultura: {c.cultura || "N/A"}
                 </p>
               </div>
               <div className="flex justify-between items-center mt-4">
                 <span
                   className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                    c.status === 'Ativo'
-                      ? 'bg-green-100 text-green-800'
-                      : c.status === 'Inativo'
-                      ? 'bg-red-100 text-red-800'
-                      : c.status === 'Lead'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
+                    c.status === "Ativo"
+                      ? "bg-green-100 text-green-800"
+                      : c.status === "Inativo"
+                      ? "bg-red-100 text-red-800"
+                      : c.status === "Lead"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}
                 >
                   {c.status}

@@ -105,13 +105,22 @@ const AnaliseCustosView = ({ plantacoes, recursos }) => {
   );
 
   const renderSelectedReports = () => {
+    if (selectedMetrics.length === 0) {
+      return (
+        <div className="lg:col-span-2 text-center p-16 bg-white rounded-xl shadow-md border-dashed border-2 border-gray-300">
+          <p className="text-xl text-gray-500 mb-4">
+            Selecione uma métrica acima para gerar um relatório.
+          </p>
+        </div>
+      );
+    }
     return selectedMetrics.map((metric) => {
       if (metric === "custoTotal") {
         return (
-          <div key={metric} className="bg-white rounded-xl shadow-lg p-5">
-            <h3 className="text-sm font-medium text-gray-500">
+          <div key={metric} className="card-base border-green-500">
+            <p className="text-sm font-medium text-gray-500">
               Custo Total Acumulado
-            </h3>
+            </p>
             <p className="text-3xl font-bold mt-1 text-green-600">
               {formatarMoeda(custoTotalGeral)}
             </p>
@@ -155,26 +164,29 @@ const AnaliseCustosView = ({ plantacoes, recursos }) => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6 flex items-center">
-        <LucideIcon name="BarChart3" className="w-8 h-8 mr-2 text-green-600" />
+    <div>
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+        <LucideIcon name="BarChart3" className="w-8 h-8 mr-3 text-green-600" />
         Análise de Custos
       </h2>
 
-      <div className="mb-6">
-        <h3 className="text-lg font-medium text-gray-700 mb-2">
+      <div className="mb-8 p-4 bg-white rounded-xl shadow-md">
+        <h3 className="text-lg font-medium text-gray-700 mb-3">
           Selecione as Métricas para o Relatório
         </h3>
         <div className="flex flex-wrap gap-4">
           {availableMetrics.map((metric) => (
-            <label key={metric.id} className="flex items-center space-x-2">
+            <label
+              key={metric.id}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
               <input
                 type="checkbox"
                 checked={selectedMetrics.includes(metric.id)}
                 onChange={() => handleMetricChange(metric.id)}
-                className="form-checkbox h-5 w-5 text-green-600"
+                className="h-5 w-5 rounded text-green-600 focus:ring-green-500"
               />
-              <span className="text-gray-700">{metric.label}</span>
+              <span className="text-gray-700 font-medium">{metric.label}</span>
             </label>
           ))}
         </div>

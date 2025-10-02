@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LucideIcon from "../../components/ui/LucideIcon";
 
 const initialTaskState = {
   name: "",
@@ -7,7 +8,7 @@ const initialTaskState = {
   recursoId: "",
   plantacaoId: "",
   responsavelId: "",
-  id: crypto.randomUUID(),
+  id: null,
 };
 
 const TaskView = ({
@@ -22,8 +23,6 @@ const TaskView = ({
   const [filter, setFilter] = useState({
     status: "",
     prioridade: "",
-    recursoId: "",
-    plantacaoId: "",
     responsavelId: "",
   });
   const [modalTask, setModalTask] = useState(null);
@@ -35,7 +34,7 @@ const TaskView = ({
   };
 
   const openNewTaskModal = () => {
-    setModalTask({ ...initialTaskState });
+    setModalTask({ ...initialTaskState, id: crypto.randomUUID() });
     setIsModalOpen(true);
   };
 
@@ -54,18 +53,17 @@ const TaskView = ({
     setModalTask((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Garante que modalTask nunca seja null ao salvar
   const handleModalSubmit = (e) => {
     e.preventDefault();
-    const safeTask = {
-      ...initialTaskState,
-      ...modalTask,
-    };
-    console.log("Salvando tarefa:", safeTask);
-    if (safeTask.id) {
-      onEditTask(safeTask);
+    if (!modalTask) return;
+
+    // Check if it's a new task by seeing if it exists in the tasks array
+    const isNewTask = !tasks.some((task) => task.id === modalTask.id);
+
+    if (isNewTask) {
+      onAddTask(modalTask);
     } else {
-      onAddTask(safeTask);
+      onEditTask(modalTask.id, modalTask);
     }
     closeModal();
   };
@@ -74,22 +72,53 @@ const TaskView = ({
     (task) =>
       (filter.status === "" || task.status === filter.status) &&
       (filter.prioridade === "" || task.prioridade === filter.prioridade) &&
-      (filter.recursoId === "" || task.recursoId === filter.recursoId) &&
-      (filter.plantacaoId === "" || task.plantacaoId === filter.plantacaoId) &&
       (filter.responsavelId === "" ||
         task.responsavelId === filter.responsavelId)
   );
 
+  const getResourceName = (id) =>
+    resources.find((r) => r.id === id)?.name || "N/A";
+  const getPlantationName = (id) =>
+    plantations.find((p) => p.id === id)?.name || "N/A";
+  const getTeamMemberName = (id) =>
+    team.find((t) => t.id === id)?.name || "N/A";
+
+  const priorityClasses = {
+    alta: "border-red-500 bg-red-50 text-red-800",
+    media: "border-yellow-500 bg-yellow-50 text-yellow-800",
+    baixa: "border-blue-500 bg-blue-50 text-blue-800",
+  };
+
+  const statusClasses = {
+    pendente: "bg-gray-200 text-gray-800",
+    "em andamento": "bg-blue-200 text-blue-800",
+    concluida: "bg-green-200 text-green-800",
+  };
+
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Gestão Completa de Tarefas</h2>
-      {/* Filtros */}
-      <div className="mb-4 flex flex-wrap gap-2">
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-800 flex items-center">
+          <LucideIcon
+            name="CheckSquare"
+            className="w-8 h-8 mr-3 text-purple-600"
+          />
+          Gestão de Tarefas
+        </h2>
+        <button
+          onClick={openNewTaskModal}
+          className="btn-primary bg-purple-600 hover:bg-purple-700 flex items-center"
+        >
+          <LucideIcon name="Plus" className="w-5 h-5 mr-2" /> Nova Tarefa
+        </button>
+      </div>
+
+      <div className="mb-6 p-4 bg-white rounded-xl shadow-md flex flex-wrap gap-4 items-center">
         <select
           name="status"
           value={filter.status}
           onChange={handleFilterChange}
-          className="border rounded p-2"
+          className="input-base w-full md:w-auto"
         >
           <option value="">Todos os Status</option>
           <option value="pendente">Pendente</option>
@@ -100,7 +129,7 @@ const TaskView = ({
           name="prioridade"
           value={filter.prioridade}
           onChange={handleFilterChange}
-          className="border rounded p-2"
+          className="input-base w-full md:w-auto"
         >
           <option value="">Todas as Prioridades</option>
           <option value="alta">Alta</option>
@@ -108,36 +137,10 @@ const TaskView = ({
           <option value="baixa">Baixa</option>
         </select>
         <select
-          name="recursoId"
-          value={filter.recursoId}
-          onChange={handleFilterChange}
-          className="border rounded p-2"
-        >
-          <option value="">Todos os Recursos</option>
-          {resources.map((resource) => (
-            <option key={resource.id} value={resource.id}>
-              {resource.name}
-            </option>
-          ))}
-        </select>
-        <select
-          name="plantacaoId"
-          value={filter.plantacaoId}
-          onChange={handleFilterChange}
-          className="border rounded p-2"
-        >
-          <option value="">Todas as Plantações</option>
-          {plantations.map((plantation) => (
-            <option key={plantation.id} value={plantation.id}>
-              {plantation.name}
-            </option>
-          ))}
-        </select>
-        <select
           name="responsavelId"
           value={filter.responsavelId}
           onChange={handleFilterChange}
-          className="border rounded p-2"
+          className="input-base w-full md:w-auto"
         >
           <option value="">Todos os Responsáveis</option>
           {team.map((member) => (
@@ -147,35 +150,30 @@ const TaskView = ({
           ))}
         </select>
       </div>
-      {/* Botão Nova Tarefa */}
-      <button
-        onClick={openNewTaskModal}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-      >
-        Nova Tarefa
-      </button>
-      {/* Modal de Criação/Edição */}
-      {isModalOpen && (
+
+      {isModalOpen && modalTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
-            <h3 className="text-xl font-bold mb-4">
-              {modalTask.id ? "Editar Tarefa" : "Nova Tarefa"}
+          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg">
+            <h3 className="text-xl font-bold mb-4 text-purple-700">
+              {tasks.some((t) => t.id === modalTask.id)
+                ? "Editar Tarefa"
+                : "Nova Tarefa"}
             </h3>
-            <form onSubmit={handleModalSubmit}>
+            <form onSubmit={handleModalSubmit} className="space-y-4">
               <input
                 name="name"
                 type="text"
                 value={modalTask.name}
                 onChange={handleModalChange}
                 placeholder="Nome da Tarefa"
-                className="border rounded p-2 mb-2 w-full"
+                className="input-base"
                 required
               />
               <select
                 name="status"
                 value={modalTask.status}
                 onChange={handleModalChange}
-                className="border rounded p-2 mb-2 w-full"
+                className="input-base"
               >
                 <option value="pendente">Pendente</option>
                 <option value="em andamento">Em Andamento</option>
@@ -185,7 +183,7 @@ const TaskView = ({
                 name="prioridade"
                 value={modalTask.prioridade}
                 onChange={handleModalChange}
-                className="border rounded p-2 mb-2 w-full"
+                className="input-base"
               >
                 <option value="alta">Alta</option>
                 <option value="media">Média</option>
@@ -195,12 +193,12 @@ const TaskView = ({
                 name="recursoId"
                 value={modalTask.recursoId}
                 onChange={handleModalChange}
-                className="border rounded p-2 mb-2 w-full"
+                className="input-base"
               >
-                <option value="">Selecione um Recurso</option>
+                <option value="">Selecione um Recurso (Opcional)</option>
                 {resources.map((resource) => (
                   <option key={resource.id} value={resource.id}>
-                    {resource.name}
+                    {resource.nome}
                   </option>
                 ))}
               </select>
@@ -208,12 +206,12 @@ const TaskView = ({
                 name="plantacaoId"
                 value={modalTask.plantacaoId}
                 onChange={handleModalChange}
-                className="border rounded p-2 mb-2 w-full"
+                className="input-base"
               >
-                <option value="">Selecione uma Plantação</option>
+                <option value="">Selecione uma Plantação (Opcional)</option>
                 {plantations.map((plantation) => (
                   <option key={plantation.id} value={plantation.id}>
-                    {plantation.name}
+                    {plantation.nome}
                   </option>
                 ))}
               </select>
@@ -221,9 +219,9 @@ const TaskView = ({
                 name="responsavelId"
                 value={modalTask.responsavelId}
                 onChange={handleModalChange}
-                className="border rounded p-2 mb-2 w-full"
+                className="input-base"
               >
-                <option value="">Selecione um Responsável</option>
+                <option value="">Selecione um Responsável (Opcional)</option>
                 {team.map((member) => (
                   <option key={member.id} value={member.id}>
                     {member.name}
@@ -234,13 +232,13 @@ const TaskView = ({
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                  className="btn-secondary"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="bg-green-500 text-white px-4 py-2 rounded"
+                  className="btn-primary bg-purple-600 hover:bg-purple-700"
                 >
                   Salvar
                 </button>
@@ -249,50 +247,64 @@ const TaskView = ({
           </div>
         </div>
       )}
-      {/* Listagem de Tarefas */}
-      <ul className="list-disc pl-5">
-        {filteredTasks.map((task) => (
-          <li key={task.id} className="mb-2 flex items-center">
-            <span className="mr-2">
-              <b>{task.name}</b> (Prioridade: {task.prioridade}, Status:{" "}
-              {task.status})
-              {task.recursoId && (
-                <>
-                  {" "}
-                  | Recurso:{" "}
-                  {resources.find((r) => r.id === task.recursoId)?.name}
-                </>
-              )}
-              {task.plantacaoId && (
-                <>
-                  {" "}
-                  | Plantação:{" "}
-                  {plantations.find((p) => p.id === task.plantacaoId)?.name}
-                </>
-              )}
-              {task.responsavelId && (
-                <>
-                  {" "}
-                  | Responsável:{" "}
-                  {team.find((t) => t.id === task.responsavelId)?.name}
-                </>
-              )}
-            </span>
-            <button
-              onClick={() => openEditTaskModal(task)}
-              className="ml-4 text-blue-500 hover:underline"
+
+      {filteredTasks.length === 0 ? (
+        <div className="text-center p-16 bg-white rounded-xl shadow-md border-dashed border-2 border-gray-300">
+          <p className="text-xl text-gray-500">Nenhuma tarefa encontrada.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredTasks.map((task) => (
+            <div
+              key={task.id}
+              className={`card-base border-l-4 ${
+                priorityClasses[task.prioridade]
+              }`}
             >
-              Editar
-            </button>
-            <button
-              onClick={() => onDeleteTask(task.id)}
-              className="ml-4 text-red-500 hover:underline"
-            >
-              Excluir
-            </button>
-          </li>
-        ))}
-      </ul>
+              <div className="flex justify-between items-start">
+                <h4 className="font-bold text-lg text-gray-800 flex-1 pr-4">
+                  {task.name}
+                </h4>
+                <span
+                  className={`px-2 py-1 text-xs font-bold rounded-full ${
+                    statusClasses[task.status]
+                  }`}
+                >
+                  {task.status}
+                </span>
+              </div>
+              <div className="mt-4 space-y-2 text-sm">
+                <p>
+                  <span className="font-semibold">Responsável:</span>{" "}
+                  {getTeamMemberName(task.responsavelId)}
+                </p>
+                <p>
+                  <span className="font-semibold">Plantação:</span>{" "}
+                  {getPlantationName(task.plantacaoId)}
+                </p>
+                <p>
+                  <span className="font-semibold">Recurso:</span>{" "}
+                  {getResourceName(task.recursoId)}
+                </p>
+              </div>
+              <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
+                <button
+                  onClick={() => openEditTaskModal(task)}
+                  className="px-3 py-1 text-sm bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => onDeleteTask(task.id)}
+                  className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

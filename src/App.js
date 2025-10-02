@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Routes, Route } from "react-router-dom";
 
 // Firebase and Hooks
@@ -108,21 +108,21 @@ const App = () => {
     }
   }, [db, isAuthReady, userId, auth]);
 
-  const openModal = (type, item = null) => {
+  const openModal = useCallback((type, item = null) => {
     setSelectedItem(item);
     setModalType(type);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setModalType(null);
     setSelectedItem(null);
-  };
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     auth.signOut();
-  };
+  }, [auth]);
 
   const renderModalContent = () => {
     switch (modalType) {
@@ -238,14 +238,12 @@ const App = () => {
 
   const fetchWeatherData = async () => {
     try {
-      const latitude = -23.5505; // Exemplo: São Paulo
-      const longitude = -46.6333;
+      const latitude = -22.6083;
+      const longitude = -47.3811;
       const currentWeather = await getCurrentWeather(latitude, longitude);
       const weatherForecast = await getWeatherForecast(latitude, longitude);
       setWeather(currentWeather);
       setForecast(weatherForecast);
-      console.log("Clima Atual:", currentWeather);
-      console.log("Previsão do Tempo:", weatherForecast);
     } catch (error) {
       console.error("Erro ao buscar dados climáticos:", error);
     }
@@ -263,72 +261,7 @@ const App = () => {
     <div className="min-h-screen bg-gray-100 font-sans">
       <MainNavigation user={user} onLogout={handleLogout} />
 
-      {/* Weather Info */}
-      <div className="container mx-auto p-4">
-        {weather && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-blue-200 to-blue-50 rounded-xl shadow flex flex-col md:flex-row md:items-center md:gap-8 border border-blue-300">
-            <div className="flex items-center gap-2 mb-2 md:mb-0">
-              <span className="text-3xl">🌤️</span>
-              <span className="font-bold text-lg">Clima Atual:</span>
-              <span className="capitalize text-blue-900">
-                {weather.description ||
-                  weather.weather?.[0]?.description ||
-                  "-"}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold">🌡️ Temperatura:</span>
-              <span className="text-blue-800">
-                {weather.temp || weather.main?.temp || "-"}°C
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold">💧 Umidade:</span>
-              <span className="text-blue-800">
-                {weather.humidity || weather.main?.humidity || "-"}%
-              </span>
-            </div>
-          </div>
-        )}
-        {forecast && forecast.daily && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-blue-100 to-blue-50 rounded-xl shadow border border-blue-200">
-            <span className="font-bold text-lg">
-              Previsão dos próximos dias:
-            </span>
-            <ul className="flex flex-wrap gap-4 mt-2">
-              {forecast.daily.slice(0, 3).map((day, idx) => (
-                <li
-                  key={idx}
-                  className="p-3 bg-white rounded-lg shadow text-center min-w-[120px] border border-blue-100"
-                >
-                  <div className="font-semibold text-blue-700">
-                    {new Date(day.dt * 1000).toLocaleDateString()}
-                  </div>
-                  <div className="text-2xl">
-                    {day.weather?.[0]?.icon ? (
-                      <img
-                        src={`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`}
-                        alt="icon"
-                        className="inline w-10 h-10"
-                      />
-                    ) : (
-                      "☀️"
-                    )}
-                  </div>
-                  <div className="text-blue-900">
-                    Temp: <b>{day.temp?.day || "-"}°C</b>
-                  </div>
-                  <div className="capitalize text-blue-800">
-                    {day.weather?.[0]?.description || "-"}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      <main className="container mx-auto p-4">
+      <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         <Routes>
           <Route
             path="/"
@@ -338,6 +271,8 @@ const App = () => {
                 recursos={recursos}
                 vendas={vendas}
                 equipe={equipe}
+                weather={weather}
+                forecast={forecast}
               />
             }
           />
@@ -450,4 +385,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default React.memo(App);

@@ -7,16 +7,33 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Agro Gestor ERP - Sistema de Gestão para o Agronegócio"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>React App</title>
+    <title>Agro Gestor ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
       body {
         font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      /* Definindo estilos base para inputs e botões para consistência */
+      .input-base {
+        @apply mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2 border transition-colors duration-200;
+      }
+      .btn-primary {
+        @apply px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed;
+      }
+      .btn-secondary {
+        @apply px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition disabled:bg-gray-300;
+      }
+      .btn-danger {
+        @apply px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition shadow-md disabled:bg-gray-400;
+      }
+      .card-base {
+        @apply bg-white rounded-xl shadow-md p-5 border-l-4 hover:shadow-lg transition-shadow duration-300;
       }
     </style>
   </head>
