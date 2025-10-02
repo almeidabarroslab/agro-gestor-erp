@@ -68,12 +68,12 @@ const App = () => {
   const { vendas, isLoadingVendas, errorVendas, addVenda } = useVendas(
     db,
     userId,
-    isAuthReady
+    isAuthReady,
   );
   const { equipe, isLoadingRH, addMembro, updateMembro } = useRH(
     db,
     userId,
-    isAuthReady
+    isAuthReady,
   );
   const {
     contatos,
@@ -93,7 +93,7 @@ const App = () => {
   const { tasks, addTask, updateTask, deleteTask } = useTasks(
     db,
     userId,
-    isAuthReady
+    isAuthReady,
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -248,9 +248,12 @@ const App = () => {
       console.error("Erro ao buscar dados climáticos:", error);
     }
   };
+  const isReplit =
+    window.location.hostname.includes("replit.dev") ||
+    window.location.hostname.includes("repl.co");
 
   useEffect(() => {
-    fetchWeatherData();
+    if (!isReplit) fetchWeatherData();
   }, []);
 
   if (!isAuthReady) {
@@ -262,7 +265,7 @@ const App = () => {
       <MainNavigation user={user} onLogout={handleLogout} />
       {/* Weather Info */}
       <div className="container mx-auto p-4">
-        {weather && (
+        {!isReplit && weather && (
           <div className="mb-4 p-4 bg-gradient-to-r from-blue-200 to-blue-50 rounded-xl shadow flex flex-col md:flex-row md:items-center md:gap-8 border border-blue-300">
             <div className="flex items-center gap-2 mb-2 md:mb-0">
               <span className="text-3xl">🌤️</span>
