@@ -1,6 +1,6 @@
-import React from 'react';
-import LucideIcon from '../ui/LucideIcon';
-import { formatarMoeda } from '../../utils/helpers';
+import React from "react";
+import LucideIcon from "../ui/LucideIcon";
+import { formatarMoeda } from "../../utils/helpers";
 
 const RHView = ({ equipe, isLoadingRH, openMembroModal }) => {
   const custoMensalRH = equipe.reduce(

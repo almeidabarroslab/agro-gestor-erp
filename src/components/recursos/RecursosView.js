@@ -1,6 +1,6 @@
-import React from 'react';
-import LucideIcon from '../ui/LucideIcon';
-import { formatarMoeda } from '../../utils/helpers';
+import React from "react";
+import LucideIcon from "../ui/LucideIcon";
+import { formatarMoeda } from "../../utils/helpers";
 
 const RecursosView = ({ recursos, isLoading, error, openRecursoModal }) => {
   const totalValorEstoque = recursos.reduce(

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const CadastroCRMForm = ({
   onClose,
@@ -6,39 +6,39 @@ const CadastroCRMForm = ({
   contatoEdit,
   updateContato,
 }) => {
-  const [nome, setNome] = useState(contatoEdit ? contatoEdit.nome : '');
-  const [tipo, setTipo] = useState(contatoEdit ? contatoEdit.tipo : 'Cliente');
+  const [nome, setNome] = useState(contatoEdit ? contatoEdit.nome : "");
+  const [tipo, setTipo] = useState(contatoEdit ? contatoEdit.tipo : "Cliente");
   const [documento, setDocumento] = useState(
-    contatoEdit ? contatoEdit.documento : ''
+    contatoEdit ? contatoEdit.documento : ""
   );
   const [telefone, setTelefone] = useState(
-    contatoEdit ? contatoEdit.telefone : ''
+    contatoEdit ? contatoEdit.telefone : ""
   );
-  const [email, setEmail] = useState(contatoEdit ? contatoEdit.email : '');
+  const [email, setEmail] = useState(contatoEdit ? contatoEdit.email : "");
   const [endereco, setEndereco] = useState(
-    contatoEdit ? contatoEdit.endereco : ''
+    contatoEdit ? contatoEdit.endereco : ""
   );
-  const [origem, setOrigem] = useState(contatoEdit ? contatoEdit.origem : '');
+  const [origem, setOrigem] = useState(contatoEdit ? contatoEdit.origem : "");
   const [status, setStatus] = useState(
-    contatoEdit ? contatoEdit.status : 'Ativo'
+    contatoEdit ? contatoEdit.status : "Ativo"
   );
   const [historico, setHistorico] = useState(
-    contatoEdit ? contatoEdit.historico : ''
+    contatoEdit ? contatoEdit.historico : ""
   );
   const [dataNascimento, setDataNascimento] = useState(
-    contatoEdit ? contatoEdit.dataNascimento : ''
+    contatoEdit ? contatoEdit.dataNascimento : ""
   );
   const [inscricaoEstadual, setInscricaoEstadual] = useState(
-    contatoEdit ? contatoEdit.inscricaoEstadual : ''
+    contatoEdit ? contatoEdit.inscricaoEstadual : ""
   );
   const [nomePropriedade, setNomePropriedade] = useState(
-    contatoEdit ? contatoEdit.nomePropriedade : ''
+    contatoEdit ? contatoEdit.nomePropriedade : ""
   );
   const [tamanhoPropriedade, setTamanhoPropriedade] = useState(
-    contatoEdit ? contatoEdit.tamanhoPropriedade : ''
+    contatoEdit ? contatoEdit.tamanhoPropriedade : ""
   );
   const [cultura, setCultura] = useState(
-    contatoEdit ? contatoEdit.cultura : ''
+    contatoEdit ? contatoEdit.cultura : ""
   );
 
   const [isLoading, setIsLoading] = useState(false);
@@ -72,15 +72,15 @@ const CadastroCRMForm = ({
       }
       onClose();
     } catch (error) {
-      console.error('Erro ao salvar contato:', error);
+      console.error("Erro ao salvar contato:", error);
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-2xl space-y-4 max-w-lg w-full">
+    <div className="p-6 bg-white rounded-xl shadow-2xl space-y-4 w-full">
       <h2 className="text-2xl font-bold text-sky-700">
-        {contatoEdit ? 'Editar Contato' : 'Novo Cliente ou Fornecedor'}
+        {contatoEdit ? "Editar Contato" : "Novo Cliente ou Fornecedor"}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -343,10 +343,10 @@ const CadastroCRMForm = ({
             disabled={isLoading}
           >
             {isLoading
-              ? 'Salvando...'
+              ? "Salvando..."
               : contatoEdit
-              ? 'Atualizar Contato'
-              : 'Adicionar Contato'}
+              ? "Atualizar Contato"
+              : "Adicionar Contato"}
           </button>
         </div>
       </form>
