@@ -5,6 +5,17 @@ import "./index.css";
 import App from "./App";
 // import reportWebVitals from './reportWebVitals';
 
+window.addEventListener("unhandledrejection", (event) => {
+  if (
+    event.reason?.message === "The user aborted a request." ||
+    event.reason?.name === "AbortError" ||
+    (typeof event.reason === "string" && event.reason.includes("aborted"))
+  ) {
+    event.preventDefault();
+    return;
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(
