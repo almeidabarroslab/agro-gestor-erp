@@ -44,7 +44,7 @@ const ReceituarioAgronomicoForm = ({
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-2xl space-y-4 max-w-2xl w-full">
+    <div className="p-6 bg-white rounded-xl shadow-2xl space-y-4 w-full">
       <h2 className="text-2xl font-bold text-sky-700 flex items-center">
         <LucideIcon name="FileText" className="w-6 h-6 mr-2" />
         Emitir Receituário Agronômico

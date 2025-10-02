@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import LucideIcon from '../ui/LucideIcon';
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
+import LucideIcon from "../ui/LucideIcon";
 
 const navLinks = [
-  { to: '/', text: 'Dashboard', icon: 'LayoutDashboard' },
-  { to: '/plantacoes', text: 'Plantações', icon: 'Leaf' },
-  { to: '/recursos', text: 'Recursos', icon: 'Package' },
-  { to: '/vendas', text: 'Vendas', icon: 'ShoppingCart' },
-  { to: '/crm', text: 'CRM', icon: 'Users' },
-  { to: '/rh', text: 'RH', icon: 'UserCog' },
-  { to: '/maquinario', text: 'Maquinário', icon: 'Tractor' },
-  { to: '/receituarios', text: 'Receituários', icon: 'FileText' },
-  { to: '/mapa', text: 'Mapa', icon: 'Map' },
-  { to: '/analise-custos', text: 'Análise de Custos', icon: 'BarChart3' },
-  { to: '/produtor-rural', text: 'Produtor Rural', icon: 'Info' },
+  { to: "/", text: "Dashboard", icon: "LayoutDashboard" },
+  { to: "/plantacoes", text: "Plantações", icon: "Leaf" },
+  { to: "/recursos", text: "Recursos", icon: "Package" },
+  { to: "/vendas", text: "Vendas", icon: "ShoppingCart" },
+  { to: "/crm", text: "CRM", icon: "Users" },
+  { to: "/rh", text: "RH", icon: "UserCog" },
+  { to: "/maquinario", text: "Maquinário", icon: "Tractor" },
+  { to: "/receituarios", text: "Receituários", icon: "FileText" },
+  { to: "/mapa", text: "Mapa", icon: "Map" },
+  { to: "/analise-custos", text: "Análise de Custos", icon: "BarChart3" },
+  { to: "/produtor-rural", text: "Produtor Rural", icon: "Info" },
+  { to: "/tasks", text: "Tarefas", icon: "CheckSquare" }, // Added TaskView link
 ];
 
 const MainNavigation = ({ user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  const activeLinkClass = 'bg-gray-900 text-white';
-  const inactiveLinkClass = 'text-gray-300 hover:bg-gray-700 hover:text-white';
+  const activeLinkClass = "bg-gray-900 text-white";
+  const inactiveLinkClass = "text-gray-300 hover:bg-gray-700 hover:text-white";
 
   return (
     <nav className="bg-gray-800 shadow-lg">
@@ -38,7 +39,7 @@ const MainNavigation = ({ user, onLogout }) => {
             >
               <span className="sr-only">Open main menu</span>
               <LucideIcon
-                name={isMenuOpen ? 'X' : 'Menu'}
+                name={isMenuOpen ? "X" : "Menu"}
                 className="block h-6 w-6"
               />
             </button>
@@ -94,7 +95,7 @@ const MainNavigation = ({ user, onLogout }) => {
                 >
                   <span className="sr-only">Open user menu</span>
                   <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold">
-                    {user?.email ? user.email.charAt(0).toUpperCase() : '?'}
+                    {user?.email ? user.email.charAt(0).toUpperCase() : "?"}
                   </div>
                 </button>
               </div>

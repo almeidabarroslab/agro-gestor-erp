@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import LucideIcon from '../ui/LucideIcon';
-import { simularPlanoRecursosIA } from '../../services/gemini';
+import React, { useState, useEffect, useCallback } from "react";
+import LucideIcon from "../ui/LucideIcon";
+import { simularPlanoRecursosIA } from "../../services/gemini";
 
 const GerarPlanoRecursosModal = ({ plantacao, onClose }) => {
   const [planoIA, setPlanoIA] = useState(null);
@@ -36,7 +36,24 @@ const GerarPlanoRecursosModal = ({ plantacao, onClose }) => {
       <h2 className="text-2xl font-bold text-yellow-700 flex items-center">
         <LucideIcon name="Calendar" className="w-6 h-6 mr-2" /> Plano de Insumos
         Sugerido (IA)
-      </h2>
+      </h2>{" "}
+      <button
+        onClick={handleGerarPlano}
+        disabled={isLoadingIA}
+        className="w-full px-4 py-2 text-sm font-medium text-white bg-yellow-600 rounded-lg hover:bg-yellow-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md flex items-center justify-center"
+      >
+        {isLoadingIA ? (
+          <>
+            <LucideIcon name="Loader" className="w-4 h-4 mr-2 animate-spin" />
+            Gerando Plano...
+          </>
+        ) : (
+          <>
+            <LucideIcon name="Bot" className="w-4 h-4 mr-2" /> Gerar Novo Plano
+            com IA
+          </>
+        )}
+      </button>
       <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
         <p className="text-md font-semibold text-gray-700">
           Plantação: {plantacao.nome}
@@ -49,7 +66,6 @@ const GerarPlanoRecursosModal = ({ plantacao, onClose }) => {
           área, focado na otimização de custos e manejo.
         </p>
       </div>
-
       <div className="min-h-[200px] border rounded-lg p-4 bg-white shadow-inner">
         {isLoadingIA && (
           <div className="text-center p-8">
@@ -89,7 +105,6 @@ const GerarPlanoRecursosModal = ({ plantacao, onClose }) => {
           </div>
         )}
       </div>
-
       <div className="flex justify-end pt-4 border-t">
         <button
           type="button"

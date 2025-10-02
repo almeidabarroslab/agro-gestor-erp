@@ -1,9 +1,78 @@
-import React from 'react';
-import LucideIcon from '../ui/LucideIcon';
-import StockAlertCard from './StockAlertCard';
-import { formatarMoeda } from '../../utils/helpers';
+import React, { useRef, useEffect } from "react";
+import LucideIcon from "../ui/LucideIcon";
+import StockAlertCard from "./StockAlertCard";
+import { formatarMoeda } from "../../utils/helpers";
+import { Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement, // Added PointElement to fix the "point" registration error
+  Title,
+  Tooltip,
+  Legend
+);
 
 const DashboardView = ({ plantacoes, recursos, vendas, equipe }) => {
+  const barChartRef = useRef(null);
+  const lineChartRef = useRef(null);
+  const barCanvasRef = useRef(null);
+  const lineCanvasRef = useRef(null);
+
+  useEffect(() => {
+    // Ensure the canvas elements exist before initializing charts
+    if (barCanvasRef.current) {
+      if (barChartRef.current) {
+        barChartRef.current.destroy();
+      }
+      barChartRef.current = new ChartJS(barCanvasRef.current, {
+        type: "bar",
+        data: vendasPorMes,
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "top" } },
+        },
+      });
+    }
+
+    if (lineCanvasRef.current) {
+      if (lineChartRef.current) {
+        lineChartRef.current.destroy();
+      }
+      lineChartRef.current = new ChartJS(lineCanvasRef.current, {
+        type: "line",
+        data: custoPorMes,
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "top" } },
+        },
+      });
+    }
+
+    return () => {
+      // Cleanup chart instances on unmount
+      if (barChartRef.current) {
+        barChartRef.current.destroy();
+      }
+      if (lineChartRef.current) {
+        lineChartRef.current.destroy();
+      }
+    };
+  }, []); // Add dependencies if charts need to update dynamically
+
   // 1. Métricas de Plantação
   const totalAreaHa = plantacoes.reduce((sum, p) => sum + (p.areaHa || 0), 0);
   const plantacoesAtivas = plantacoes.filter(
@@ -39,6 +108,64 @@ const DashboardView = ({ plantacoes, recursos, vendas, equipe }) => {
     0
   );
   const insumosBaixoEstoque = recursos.filter((r) => r.estoque < 10);
+
+  const vendasPorMes = {
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    datasets: [
+      {
+        label: "Vendas (R$)",
+        data: [
+          12000, 15000, 8000, 20000, 25000, 30000, 28000, 32000, 40000, 45000,
+          50000, 60000,
+        ],
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const custoPorMes = {
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    datasets: [
+      {
+        label: "Custos (R$)",
+        data: [
+          10000, 12000, 7000, 15000, 20000, 25000, 23000, 27000, 35000, 40000,
+          45000, 50000,
+        ],
+        backgroundColor: "rgba(255, 99, 132, 0.6)",
+        borderColor: "rgba(255, 99, 132, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -127,6 +254,27 @@ const DashboardView = ({ plantacoes, recursos, vendas, equipe }) => {
             <p className="text-3xl font-bold mt-1 text-rose-600">
               {totalMembrosAtivos}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ANÁLISE DE VENDAS E CUSTOS */}
+      <div className="mb-8">
+        <h3 className="text-2xl font-bold text-purple-700 mb-4 border-b pb-2">
+          Análise de Vendas e Custos
+        </h3>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h4 className="text-lg font-medium text-gray-700 mb-4">
+              Vendas por Mês
+            </h4>
+            <canvas ref={barCanvasRef}></canvas>
+          </div>
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h4 className="text-lg font-medium text-gray-700 mb-4">
+              Custos por Mês
+            </h4>
+            <canvas ref={lineCanvasRef}></canvas>
           </div>
         </div>
       </div>

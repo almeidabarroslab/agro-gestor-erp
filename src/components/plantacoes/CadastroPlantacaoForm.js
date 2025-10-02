@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { CULTURES } from '../../utils/constants';
-import DefinirAreaMapa from './DefinirAreaMapa';
+import React, { useState, useMemo } from "react";
+import { CULTURES } from "../../utils/constants";
+import DefinirAreaMapa from "./DefinirAreaMapa";
 
 const CadastroPlantacaoForm = ({
   onSave,
@@ -8,12 +8,12 @@ const CadastroPlantacaoForm = ({
   plantacaoEdit,
   updatePlantacao,
 }) => {
-  const [nome, setNome] = useState(plantacaoEdit ? plantacaoEdit.nome : '');
+  const [nome, setNome] = useState(plantacaoEdit ? plantacaoEdit.nome : "");
   const [areaHa, setAreaHa] = useState(
-    plantacaoEdit ? plantacaoEdit.areaHa : ''
+    plantacaoEdit ? plantacaoEdit.areaHa : ""
   );
   const [dataPlantio, setDataPlantio] = useState(
-    plantacaoEdit ? plantacaoEdit.dataPlantio.split('T')[0] : ''
+    plantacaoEdit ? plantacaoEdit.dataPlantio.split("T")[0] : ""
   );
   const [cultura, setCultura] = useState(
     plantacaoEdit ? plantacaoEdit.cultura : CULTURES[0]
@@ -31,7 +31,7 @@ const CadastroPlantacaoForm = ({
       areaHa: parseFloat(areaHa),
       dataPlantio,
       cultura,
-      status: plantacaoEdit ? plantacaoEdit.status : 'Plantada',
+      status: plantacaoEdit ? plantacaoEdit.status : "Plantada",
       areaGeo,
     };
     try {
@@ -42,7 +42,7 @@ const CadastroPlantacaoForm = ({
       }
       onClose();
     } catch (error) {
-      console.error('Erro ao salvar:', error);
+      console.error("Erro ao salvar:", error);
       setIsLoading(false);
     }
   };
@@ -54,15 +54,15 @@ const CadastroPlantacaoForm = ({
       p.latitude,
     ]);
     return {
-      type: 'Polygon',
+      type: "Polygon",
       coordinates: [coordinates],
     };
   }, [plantacaoEdit]);
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-2xl max-h-[95vh] space-y-4 max-w-2xl w-full overflow-y-auto">
+    <div className="p-6 bg-white rounded-xl shadow-2xl max-h-[95vh] space-y-4 w-full overflow-y-auto">
       <h2 className="text-2xl font-bold text-teal-700">
-        {plantacaoEdit ? 'Editar Plantação' : 'Nova Plantação'}
+        {plantacaoEdit ? "Editar Plantação" : "Nova Plantação"}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -163,10 +163,10 @@ const CadastroPlantacaoForm = ({
             disabled={isLoading}
           >
             {isLoading
-              ? 'Salvando...'
+              ? "Salvando..."
               : plantacaoEdit
-              ? 'Atualizar Plantação'
-              : 'Criar Plantação'}
+              ? "Atualizar Plantação"
+              : "Criar Plantação"}
           </button>
         </div>
       </form>
