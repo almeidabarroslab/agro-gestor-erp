@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import FormWrapper from "../ui/FormWrapper";
+import FormInput from "../ui/FormInput";
+import FormSelect from "../ui/FormSelect";
 
 const CadastroRecursoForm = ({
   onClose,
@@ -46,130 +49,65 @@ const CadastroRecursoForm = ({
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-2xl space-y-4 max-w-lg w-full">
-      <h2 className="text-2xl font-bold text-orange-700">
-        {recursoEdit ? "Editar Insumo" : "Novo Insumo em Estoque"}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="nome"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Nome do Insumo (Ex: KNO3, Nim, etc.)
-          </label>
-          <input
-            type="text"
-            id="nome"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
-          />
-        </div>
-        <div className="flex space-x-4">
-          <div className="w-1/2">
-            <label
-              htmlFor="tipo"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Tipo
-            </label>
-            <select
-              id="tipo"
-              value={tipo}
-              onChange={(e) => setTipo(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
-            >
-              <option>Fertilizante</option>
-              <option>Defensivo Agrícola</option>
-              <option>Semente</option>
-              <option>Outro</option>
-            </select>
-          </div>
-          <div className="w-1/2">
-            <label
-              htmlFor="unidade"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Unidade de Medida
-            </label>
-            <select
-              id="unidade"
-              value={unidade}
-              onChange={(e) => setUnidade(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
-            >
-              <option>Kg</option>
-              <option>L</option>
-              <option>un</option>
-              <option>Pacote</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex space-x-4">
-          <div className="w-1/2">
-            <label
-              htmlFor="estoque"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Estoque Atual
-            </label>
-            <input
-              type="number"
-              id="estoque"
-              value={estoque}
-              onChange={(e) => setEstoque(e.target.value)}
-              step="0.01"
-              min="0"
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
-            />
-          </div>
-          <div className="w-1/2">
-            <label
-              htmlFor="custoUnitario"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Custo Unitário (R$ / {unidade})
-            </label>
-            <input
-              type="number"
-              id="custoUnitario"
-              value={custoUnitario}
-              onChange={(e) => setCustoUnitario(e.target.value)}
-              step="0.01"
-              min="0"
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-2 border"
-            />
-          </div>
-        </div>
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-            disabled={isLoading}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition disabled:opacity-50"
-            disabled={isLoading}
-          >
-            {isLoading
-              ? "Salvando..."
-              : recursoEdit
-              ? "Atualizar Insumo"
-              : "Adicionar Insumo"}
-          </button>
-        </div>
-      </form>
-    </div>
+    <FormWrapper
+      title={recursoEdit ? "Editar Insumo" : "Novo Insumo em Estoque"}
+      onSubmit={handleSubmit}
+      onCancel={onClose}
+      submitLabel={recursoEdit ? "Atualizar Insumo" : "Adicionar Insumo"}
+      isLoading={isLoading}
+      maxWidth="max-w-2xl"
+    >
+      <FormInput
+        label="Nome do Insumo"
+        id="nome"
+        value={nome}
+        onChange={(e) => setNome(e.target.value)}
+        required
+        placeholder="Ex: KNO3, Nim, etc."
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormSelect
+          label="Tipo"
+          id="tipo"
+          value={tipo}
+          onChange={(e) => setTipo(e.target.value)}
+          options={["Fertilizante", "Defensivo Agrícola", "Semente", "Outro"]}
+          required
+        />
+        <FormSelect
+          label="Unidade de Medida"
+          id="unidade"
+          value={unidade}
+          onChange={(e) => setUnidade(e.target.value)}
+          options={["Kg", "L", "un", "Pacote"]}
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormInput
+          label="Estoque Atual"
+          id="estoque"
+          type="number"
+          value={estoque}
+          onChange={(e) => setEstoque(e.target.value)}
+          step="0.01"
+          min="0"
+          required
+        />
+        <FormInput
+          label={`Custo Unitário (R$ / ${unidade})`}
+          id="custoUnitario"
+          type="number"
+          value={custoUnitario}
+          onChange={(e) => setCustoUnitario(e.target.value)}
+          step="0.01"
+          min="0"
+          required
+        />
+      </div>
+    </FormWrapper>
   );
 };
 

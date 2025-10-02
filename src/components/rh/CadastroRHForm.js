@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import LucideIcon from '../ui/LucideIcon';
 import { simularGeracaoDescricaoVagaIA } from '../../services/gemini';
+import FormWrapper from '../ui/FormWrapper';
+import FormInput from '../ui/FormInput';
+import FormSelect from '../ui/FormSelect';
+import Button from '../ui/Button';
 
 const CadastroRHForm = ({ onClose, addMembro, membroEdit, updateMembro }) => {
   const [nome, setNome] = useState(membroEdit ? membroEdit.nome : "");
@@ -70,154 +73,85 @@ const CadastroRHForm = ({ onClose, addMembro, membroEdit, updateMembro }) => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-2xl space-y-4 max-w-4xl w-full">
-      <h2 className="text-2xl font-bold text-rose-700">
-        {membroEdit ? "Editar Membro da Equipe" : "Novo Membro da Equipe"}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label
-              htmlFor="nome"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Nome Completo
-            </label>
-            <input
-              type="text"
-              id="nome"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="contato"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Contato (Telefone/Email)
-            </label>
-            <input
-              type="text"
-              id="contato"
-              value={contato}
-              onChange={(e) => setContato(e.target.value)}
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
-            />
+    <FormWrapper
+      title={membroEdit ? "Editar Membro da Equipe" : "Novo Membro da Equipe"}
+      onSubmit={handleSubmit}
+      onCancel={onClose}
+      submitLabel={membroEdit ? "Atualizar Membro" : "Adicionar Membro"}
+      isLoading={isLoading}
+      maxWidth="max-w-3xl"
+    >
+      <div className="grid grid-cols-2 gap-4">
+        <FormInput
+          label="Nome Completo"
+          id="nome"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          required
+          placeholder="Nome do colaborador"
+        />
+        <FormInput
+          label="Contato (Telefone/Email)"
+          id="contato"
+          value={contato}
+          onChange={(e) => setContato(e.target.value)}
+          placeholder="(00) 00000-0000"
+        />
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <FormSelect
+          label="Função"
+          id="funcao"
+          value={funcao}
+          onChange={(e) => setFuncao(e.target.value)}
+          options={["Colhedor", "Tratorista", "Agrônomo", "Administrativo", "Geral"]}
+          required
+        />
+        <FormInput
+          label="Custo/Hora (R$)"
+          id="custoHora"
+          type="number"
+          value={custoHora}
+          onChange={(e) => setCustoHora(e.target.value)}
+          step="0.01"
+          min="0"
+          required
+        />
+        <FormSelect
+          label="Status"
+          id="status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          options={["Ativo", "Licença", "Inativo"]}
+          required
+        />
+      </div>
+
+      <div className="pt-4 border-t border-gray-200">
+        <Button
+          type="button"
+          variant="primary"
+          onClick={handleGerarDescricao}
+          disabled={isLoadingIA || !funcao || parseFloat(custoHora) <= 0}
+          loading={isLoadingIA}
+          icon="Bot"
+        >
+          {isLoadingIA ? "Gerando..." : "✨ Gerar Descrição de Vaga (IA)"}
+        </Button>
+      </div>
+
+      {descricaoVagaIA && (
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-xl shadow-inner max-h-64 overflow-y-auto">
+          <h3 className="text-md font-bold text-blue-800 mb-2">
+            Descrição Gerada:
+          </h3>
+          <div className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
+            {descricaoVagaIA}
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label
-              htmlFor="funcao"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Função
-            </label>
-            <select
-              id="funcao"
-              value={funcao}
-              onChange={(e) => setFuncao(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
-            >
-              <option>Colhedor</option>
-              <option>Tratorista</option>
-              <option>Agrônomo</option>
-              <option>Administrativo</option>
-              <option>Geral</option>
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="custoHora"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Custo/Hora (R$)
-            </label>
-            <input
-              type="number"
-              id="custoHora"
-              value={custoHora}
-              onChange={(e) => setCustoHora(e.target.value)}
-              step="0.01"
-              min="0"
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Status
-            </label>
-            <select
-              id="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 p-2 border"
-            >
-              <option>Ativo</option>
-              <option>Licença</option>
-              <option>Inativo</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={handleGerarDescricao}
-            disabled={isLoadingIA || !funcao || parseFloat(custoHora) <= 0}
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
-          >
-            <LucideIcon name="Bot" className="w-4 h-4 mr-2" />
-            {isLoadingIA
-              ? "Gerando Descrição..."
-              : "✨ Gerar Descrição de Vaga (IA)"}
-          </button>
-        </div>
-
-        {descricaoVagaIA && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-xl shadow-inner max-h-64 overflow-y-auto">
-            <h3 className="text-md font-bold text-blue-800 mb-2">
-              Descrição Gerada:
-            </h3>
-            <div className="text-xs text-gray-700 whitespace-pre-wrap font-mono">
-              {descricaoVagaIA}
-            </div>
-          </div>
-        )}
-
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-            disabled={isLoading}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-rose-600 rounded-lg hover:bg-rose-700 transition disabled:opacity-50"
-            disabled={isLoading}
-          >
-            {isLoading
-              ? "Salvando..."
-              : membroEdit
-              ? "Atualizar Membro"
-              : "Adicionar Membro"}
-          </button>
-        </div>
-      </form>
-    </div>
+      )}
+    </FormWrapper>
   );
 };
 

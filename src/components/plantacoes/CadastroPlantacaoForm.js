@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
 import { CULTURES } from "../../utils/constants";
 import DefinirAreaMapa from "./DefinirAreaMapa";
+import FormWrapper from "../ui/FormWrapper";
+import FormInput from "../ui/FormInput";
+import FormSelect from "../ui/FormSelect";
 
 const CadastroPlantacaoForm = ({
   onSave,
@@ -60,117 +63,59 @@ const CadastroPlantacaoForm = ({
   }, [plantacaoEdit]);
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-2xl max-h-[95vh] space-y-4 w-full overflow-y-auto">
-      <h2 className="text-2xl font-bold text-teal-700">
-        {plantacaoEdit ? "Editar Plantação" : "Nova Plantação"}
-      </h2>
+    <FormWrapper
+      title={plantacaoEdit ? "Editar Plantação" : "Nova Plantação"}
+      onSubmit={handleSubmit}
+      onCancel={onClose}
+      submitLabel={plantacaoEdit ? "Atualizar Plantação" : "Criar Plantação"}
+      isLoading={isLoading}
+      maxWidth="max-w-3xl"
+    >
+      <FormInput
+        label="Nome da Plantação"
+        id="nome"
+        value={nome}
+        onChange={(e) => setNome(e.target.value)}
+        required
+        placeholder="Ex: Talhão 01 - Norte"
+      />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="nome"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Nome da Plantação
-          </label>
-          <input
-            type="text"
-            id="nome"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2 border"
-          />
-        </div>
+      <FormSelect
+        label="Tipo de Cultura"
+        id="cultura"
+        value={cultura}
+        onChange={(e) => setCultura(e.target.value)}
+        options={CULTURES}
+        required
+      />
 
-        <div>
-          <label
-            htmlFor="cultura"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Tipo de Cultura
-          </label>
-          <select
-            id="cultura"
-            value={cultura}
-            onChange={(e) => setCultura(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2 border"
-          >
-            {CULTURES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex space-x-4">
-          <div className="w-1/2">
-            <label
-              htmlFor="areaHa"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Área (Ha)
-            </label>
-            <input
-              type="number"
-              id="areaHa"
-              value={areaHa}
-              onChange={(e) => setAreaHa(e.target.value)}
-              step="0.01"
-              min="0.1"
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2 border"
-            />
-          </div>
-          <div className="w-1/2">
-            <label
-              htmlFor="dataPlantio"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Data de Plantio
-            </label>
-            <input
-              type="date"
-              id="dataPlantio"
-              value={dataPlantio}
-              onChange={(e) => setDataPlantio(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2 border"
-            />
-          </div>
-        </div>
-
-        <DefinirAreaMapa
-          onAreaDefined={setAreaGeo}
-          onAreaCalculated={setAreaHa}
-          areaInicial={areaInicialGeoJSON}
+      <div className="grid grid-cols-2 gap-4">
+        <FormInput
+          label="Área (Ha)"
+          id="areaHa"
+          type="number"
+          value={areaHa}
+          onChange={(e) => setAreaHa(e.target.value)}
+          step="0.01"
+          min="0.1"
+          required
         />
+        <FormInput
+          label="Data de Plantio"
+          id="dataPlantio"
+          type="date"
+          value={dataPlantio}
+          onChange={(e) => setDataPlantio(e.target.value)}
+          required
+        />
+      </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-            disabled={isLoading}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-lg hover:bg-teal-700 transition disabled:opacity-50"
-            disabled={isLoading}
-          >
-            {isLoading
-              ? "Salvando..."
-              : plantacaoEdit
-              ? "Atualizar Plantação"
-              : "Criar Plantação"}
-          </button>
-        </div>
-      </form>
-    </div>
+      <DefinirAreaMapa
+        onAreaDefined={setAreaGeo}
+        onAreaCalculated={setAreaHa}
+        areaInicial={areaInicialGeoJSON}
+      />
+    </FormWrapper>
   );
 };
 
